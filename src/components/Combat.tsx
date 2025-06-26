@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Enemy, PowerSkill } from '../types/game';
-import {
-  Sword, Shield, Heart, Brain, Clock, Zap, Skull, Droplets
-} from 'lucide-react';
+import { Sword, Shield, Heart, Brain, Clock, Zap, Skull, Flame, Droplets, Plus } from 'lucide-react';
 import { TriviaQuestion, getQuestionByZone } from '../utils/triviaQuestions';
 
 interface CombatProps {
@@ -14,7 +12,6 @@ interface CombatProps {
     def: number;
   };
   onAttack: (hit: boolean, category?: string) => void;
-  onLose: () => void;
   combatLog: string[];
   gameMode: {
     current: 'normal' | 'blitz' | 'bloodlust' | 'crazy';
@@ -30,15 +27,14 @@ interface CombatProps {
   powerSkills: PowerSkill[];
 }
 
-export const Combat: React.FC<CombatProps> = ({
-  enemy,
-  playerStats,
-  onAttack,
-  onLose,
-  combatLog,
+export const Combat: React.FC<CombatProps> = ({ 
+  enemy, 
+  playerStats, 
+  onAttack, 
+  combatLog, 
   gameMode,
   knowledgeStreak,
-  powerSkills
+  powerSkills 
 }) => {
   const [currentQuestion, setCurrentQuestion] = useState<TriviaQuestion | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -49,13 +45,15 @@ export const Combat: React.FC<CombatProps> = ({
   const [showFreeAnswer, setShowFreeAnswer] = useState(false);
 
   const questionTime = (gameMode.current === 'blitz' || gameMode.current === 'bloodlust') ? 3 : 5;
+  
+  // Check for scholar power skill (extra time)
   const scholarSkill = powerSkills.find(skill => skill.effect.type === 'scholar' && skill.isActive);
   const bonusTime = scholarSkill ? scholarSkill.effect.value || 0 : 0;
   const totalQuestionTime = questionTime + bonusTime;
 
+  // Check for free answer power skill
   const freeAnswerSkill = powerSkills.find(skill => skill.effect.type === 'free_answer' && skill.isActive);
 
-  // Load new question on enemy or timing change
   useEffect(() => {
     const question = getQuestionByZone(enemy.zone);
     setCurrentQuestion(question);
@@ -63,10 +61,9 @@ export const Combat: React.FC<CombatProps> = ({
     setTimeLeft(totalQuestionTime);
     setShowResult(false);
     setLastAnswerCorrect(null);
-    setShowFreeAnswer(!!freeAnswerSkill);
+    setShowFreeAnswer(freeAnswerSkill ? true : false);
   }, [enemy, totalQuestionTime, freeAnswerSkill]);
 
-  // Timer countdown
   useEffect(() => {
     if (!currentQuestion || isAnswering || showResult) return;
 
@@ -83,13 +80,6 @@ export const Combat: React.FC<CombatProps> = ({
     return () => clearInterval(timer);
   }, [currentQuestion, isAnswering, showResult]);
 
-  // Handle player loss
-  useEffect(() => {
-    if (playerStats.hp <= 0) {
-      onLose();
-    }
-  }, [playerStats.hp, onLose]);
-
   const handleAnswer = (answerIndex: number | null) => {
     if (isAnswering || !currentQuestion) return;
 
@@ -102,15 +92,15 @@ export const Combat: React.FC<CombatProps> = ({
 
     setTimeout(() => {
       onAttack(isCorrect, currentQuestion.category);
-
-      const nextQuestion = getQuestionByZone(enemy.zone);
-      setCurrentQuestion(nextQuestion);
+      
+      const newQuestion = getQuestionByZone(enemy.zone);
+      setCurrentQuestion(newQuestion);
       setSelectedAnswer(null);
       setIsAnswering(false);
       setTimeLeft(totalQuestionTime);
       setShowResult(false);
       setLastAnswerCorrect(null);
-      setShowFreeAnswer(!!freeAnswerSkill);
+      setShowFreeAnswer(false); // Only show free answer for first question
     }, 2000);
   };
 
@@ -150,126 +140,249 @@ export const Combat: React.FC<CombatProps> = ({
     }
   };
 
-  // Defensive render fallback for invalid question data
-  if (
-    !currentQuestion
-    || !Array.isArray(currentQuestion.answers)
-    || currentQuestion.correctAnswer == null
-    || currentQuestion.correctAnswer < 0
-    || currentQuestion.correctAnswer >= currentQuestion.answers.length
-  ) {
+  if (!currentQuestion) {
     return (
-      <div className="p-4 text-center text-white bg-gray-900 rounded-lg">
-        <div className="animate-spin inline-block w-8 h-8 border-4 border-purple-400 border-t-transparent rounded-full mb-4"></div>
-        <p>Loading question...</p>
+      <div className="bg-gradient-to-br from-red-900 via-purple-900 to-black p-3 sm:p-6 rounded-lg shadow-2xl">
+        <div className="text-center py-8">
+          <div className="animate-spin inline-block w-8 h-8 border-4 border-purple-400 border-t-transparent rounded-full mb-4"></div>
+          <p className="text-white text-lg">Loading question...</p>
+        </div>
       </div>
     );
   }
 
-  // Wrap rendering with try/catch for safety (optional)
-  try {
-    return (
-      <div className="bg-gradient-to-br from-red-900 via-purple-900 to-black p-4 rounded-lg shadow-2xl text-white space-y-6">
-        {/* Header */}
-        <div className="text-center">
-          <div className="flex items-center justify-center gap-2 text-xl font-bold">
-            <h2>Combat - Zone {enemy.zone}</h2>
-            {getModeIcon()}
+  return (
+    <div className="bg-gradient-to-br from-red-900 via-purple-900 to-black p-3 sm:p-6 rounded-lg shadow-2xl">
+      <div className="text-center mb-4 sm:mb-6">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-white">Combat - Zone {enemy.zone}</h2>
+          {getModeIcon()}
+        </div>
+        <p className="text-red-300 text-base sm:text-lg font-semibold">{enemy.name}</p>
+        
+        {/* Game Mode Info */}
+        <div className="flex items-center justify-center gap-4 mt-2 text-sm">
+          <span className={`px-2 py-1 rounded ${getModeColor()} text-white font-semibold`}>
+            {gameMode.current.toUpperCase()} MODE
+          </span>
+          
+          {knowledgeStreak.current > 0 && (
+            <span className="text-yellow-300 flex items-center gap-1">
+              🔥 {knowledgeStreak.current} Streak ({Math.round((knowledgeStreak.multiplier - 1) * 100)}% bonus)
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Active Power Skills */}
+      {powerSkills.length > 0 && (
+        <div className="mb-4">
+          <h3 className="text-white font-semibold mb-2 text-sm">⚡ Active Power Skills</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {powerSkills.slice(0, 6).map((skill) => (
+              <div
+                key={skill.id}
+                className={`p-2 rounded border text-xs ${
+                  skill.rarity === 'mythical' ? 'border-red-500 bg-red-900/20' :
+                  skill.rarity === 'legendary' ? 'border-yellow-500 bg-yellow-900/20' :
+                  skill.rarity === 'epic' ? 'border-purple-500 bg-purple-900/20' :
+                  skill.rarity === 'rare' ? 'border-blue-500 bg-blue-900/20' :
+                  'border-gray-500 bg-gray-900/20'
+                }`}
+              >
+                <p className="text-white font-semibold truncate">{skill.name}</p>
+                <p className={`text-xs ${
+                  skill.rarity === 'mythical' ? 'text-red-400' :
+                  skill.rarity === 'legendary' ? 'text-yellow-400' :
+                  skill.rarity === 'epic' ? 'text-purple-400' :
+                  skill.rarity === 'rare' ? 'text-blue-400' : 'text-gray-400'
+                }`}>
+                  {skill.rarity.toUpperCase()}
+                </p>
+              </div>
+            ))}
           </div>
-          <p className="text-red-300">{enemy.name}</p>
-          <div className="mt-2 flex justify-center items-center gap-4 text-sm">
-            <span className={`px-2 py-1 rounded ${getModeColor()}`}>{gameMode.current.toUpperCase()} MODE</span>
-            {knowledgeStreak.current > 0 && (
-              <span className="text-yellow-300">🔥 {knowledgeStreak.current} Streak (+{Math.round((knowledgeStreak.multiplier - 1) * 100)}%)</span>
+        </div>
+      )}
+
+      {/* Health Bars */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+        <div className="bg-black/30 p-3 sm:p-4 rounded-lg">
+          <div className="flex items-center gap-2 mb-2">
+            <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
+            <span className="text-white font-semibold text-sm sm:text-base">You</span>
+          </div>
+          <div className="w-full bg-gray-700 rounded-full h-2 sm:h-3">
+            <div 
+              className="bg-gradient-to-r from-green-500 to-green-400 h-2 sm:h-3 rounded-full transition-all duration-300"
+              style={{ width: `${(playerStats.hp / playerStats.maxHp) * 100}%` }}
+            />
+          </div>
+          <p className="text-xs sm:text-sm text-gray-300 mt-1">{playerStats.hp}/{playerStats.maxHp}</p>
+          <div className="flex gap-2 sm:gap-4 mt-2 text-xs sm:text-sm">
+            <span className="text-orange-400 flex items-center gap-1">
+              <Sword className="w-3 h-3 sm:w-4 sm:h-4" />
+              {playerStats.atk}
+            </span>
+            <span className="text-blue-400 flex items-center gap-1">
+              <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
+              {playerStats.def}
+            </span>
+          </div>
+        </div>
+
+        <div className="bg-black/30 p-3 sm:p-4 rounded-lg">
+          <div className="flex items-center gap-2 mb-2">
+            <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
+            <span className="text-white font-semibold text-sm sm:text-base">{enemy.name}</span>
+            {enemy.isPoisoned && (
+              <Droplets className="w-4 h-4 text-green-400 animate-pulse" />
             )}
           </div>
+          <div className="w-full bg-gray-700 rounded-full h-2 sm:h-3">
+            <div 
+              className="bg-gradient-to-r from-red-500 to-red-400 h-2 sm:h-3 rounded-full transition-all duration-300"
+              style={{ width: `${(enemy.hp / enemy.maxHp) * 100}%` }}
+            />
+          </div>
+          <p className="text-xs sm:text-sm text-gray-300 mt-1">{enemy.hp}/{enemy.maxHp}</p>
+          <div className="flex gap-2 sm:gap-4 mt-2 text-xs sm:text-sm">
+            <span className="text-orange-400 flex items-center gap-1">
+              <Sword className="w-3 h-3 sm:w-4 sm:h-4" />
+              {enemy.atk}
+            </span>
+            <span className="text-blue-400 flex items-center gap-1">
+              <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
+              {enemy.def}
+            </span>
+          </div>
+          {enemy.isPoisoned && (
+            <p className="text-green-400 text-xs mt-1">
+              💀 Poisoned ({enemy.poisonTurns} turns)
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Trivia Question Section */}
+      <div className="mb-4 sm:mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
+            <h3 className="text-white font-semibold text-sm sm:text-base">Knowledge Challenge</h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+            <span className={`font-bold text-sm sm:text-base ${
+              timeLeft <= 2 ? 'text-red-400 animate-pulse' : 'text-yellow-400'
+            }`}>
+              {timeLeft}s
+            </span>
+          </div>
         </div>
 
-        {/* Health Bars */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="bg-black/30 p-3 rounded-lg">
-            <div className="flex gap-2 items-center">
-              <Heart className="text-red-400" />
-              <span>You</span>
-            </div>
-            <div className="w-full h-2 bg-gray-700 rounded-full mt-1">
-              <div
-                className="bg-green-500 h-2 rounded-full transition-all"
-                style={{ width: `${(playerStats.hp / playerStats.maxHp) * 100}%` }}
-              />
-            </div>
-            <p className="text-xs mt-1">{playerStats.hp}/{playerStats.maxHp}</p>
-          </div>
-
-          <div className="bg-black/30 p-3 rounded-lg">
-            <div className="flex gap-2 items-center">
-              <Heart className="text-red-400" />
-              <span>{enemy.name}</span>
-              {enemy.isPoisoned && <Droplets className="text-green-400 animate-pulse" />}
-            </div>
-            <div className="w-full h-2 bg-gray-700 rounded-full mt-1">
-              <div
-                className="bg-red-500 h-2 rounded-full transition-all"
-                style={{ width: `${(enemy.hp / enemy.maxHp) * 100}%` }}
-              />
-            </div>
-            <p className="text-xs mt-1">{enemy.hp}/{enemy.maxHp}</p>
-          </div>
-        </div>
-
-        {/* Question */}
-        <div className={`bg-black/40 p-4 border-2 rounded-lg ${getDifficultyBorder(currentQuestion.difficulty)}`}>
-          <div className="flex justify-between text-xs text-gray-400 mb-2">
-            <span>{currentQuestion.category}</span>
-            <span className={getDifficultyColor(currentQuestion.difficulty)}>
+        {/* Question Card */}
+        <div className={`bg-black/40 p-4 sm:p-6 rounded-lg border-2 ${getDifficultyBorder(currentQuestion.difficulty)} mb-4`}>
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs sm:text-sm text-gray-400">{currentQuestion.category}</span>
+            <span className={`text-xs sm:text-sm font-semibold ${getDifficultyColor(currentQuestion.difficulty)}`}>
               {currentQuestion.difficulty.toUpperCase()}
             </span>
           </div>
+          <p className="text-white font-semibold text-sm sm:text-lg mb-4 leading-relaxed">
+            {currentQuestion.question}
+          </p>
 
-          <p className="text-white font-semibold mb-3">{currentQuestion.question}</p>
-          <div className="grid grid-cols-2 gap-2">
-            {currentQuestion.answers.map((answer, index) => (
-              <button
-                key={index}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all border
-                  ${
-                    selectedAnswer === index
-                      ? (index === currentQuestion.correctAnswer
-                        ? 'bg-green-600 border-green-300'
-                        : 'bg-red-600 border-red-300')
-                      : 'bg-gray-800 hover:bg-gray-700 border-gray-700'
-                  }`}
-                onClick={() => handleAnswer(index)}
-                disabled={isAnswering || showResult}
-              >
-                {answer}
-              </button>
-            ))}
-          </div>
-
-          {/* Timer */}
-          <div className="mt-3 text-center text-xs text-gray-300">
-            Time Left: <span className="font-bold text-white">{timeLeft}s</span>
-          </div>
-
-          {/* Free answer skill indicator */}
+          {/* Free Answer Hint */}
           {showFreeAnswer && (
-            <div className="mt-2 text-green-400 text-center text-sm animate-pulse">
-              Free answer used! No penalty for wrong choice.
+            <div className="mb-3 p-2 bg-blue-900/50 border border-blue-500/50 rounded">
+              <p className="text-blue-300 text-xs text-center">
+                🔮 Oracle's Wisdom: The correct answer is highlighted in blue!
+              </p>
             </div>
           )}
+
+          {/* Answer Options */}
+          <div className="grid grid-cols-1 gap-2 sm:gap-3">
+            {currentQuestion.options.map((option, index) => {
+              let buttonClass = 'bg-gray-700 hover:bg-gray-600 text-white';
+              
+              if (showResult) {
+                if (index === currentQuestion.correctAnswer) {
+                  buttonClass = 'bg-green-600 text-white';
+                } else if (index === selectedAnswer && selectedAnswer !== currentQuestion.correctAnswer) {
+                  buttonClass = 'bg-red-600 text-white';
+                } else {
+                  buttonClass = 'bg-gray-600 text-gray-400';
+                }
+              } else if (selectedAnswer === index) {
+                buttonClass = 'bg-blue-600 text-white';
+              } else if (showFreeAnswer && index === currentQuestion.correctAnswer) {
+                buttonClass = 'bg-blue-700 hover:bg-blue-600 text-white border-2 border-blue-400';
+              }
+
+              return (
+                <button
+                  key={index}
+                  onClick={() => handleAnswer(index)}
+                  disabled={isAnswering || showResult}
+                  className={`p-2 sm:p-3 rounded-lg font-semibold transition-all duration-200 text-left text-xs sm:text-sm ${buttonClass} ${
+                    !isAnswering && !showResult ? 'hover:scale-102' : 'cursor-not-allowed'
+                  }`}
+                >
+                  <span className="font-bold mr-2">{String.fromCharCode(65 + index)}.</span>
+                  {option}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Combat Log */}
-        <div className="bg-black/20 p-3 rounded-lg text-xs max-h-32 overflow-y-auto space-y-1">
-          {combatLog.slice(-5).map((log, i) => (
-            <div key={i} className="text-gray-300">• {log}</div>
+        {/* Result Feedback */}
+        {showResult && (
+          <div className={`text-center p-3 sm:p-4 rounded-lg ${
+            lastAnswerCorrect 
+              ? 'bg-green-900/50 border border-green-500' 
+              : 'bg-red-900/50 border border-red-500'
+          }`}>
+            <p className={`font-bold text-sm sm:text-base ${
+              lastAnswerCorrect ? 'text-green-400' : 'text-red-400'
+            }`}>
+              {lastAnswerCorrect 
+                ? '🎉 Correct! You deal damage!' 
+                : '❌ Wrong! The enemy attacks you!'}
+            </p>
+            {!lastAnswerCorrect && (
+              <p className="text-gray-300 text-xs sm:text-sm mt-1">
+                Correct answer: {String.fromCharCode(65 + currentQuestion.correctAnswer)}. {currentQuestion.options[currentQuestion.correctAnswer]}
+              </p>
+            )}
+          </div>
+        )}
+
+        <div className="text-center mt-3">
+          <p className="text-xs sm:text-sm text-gray-300">
+            Answer correctly to <span className="text-green-400 font-semibold">deal damage</span>!
+          </p>
+          <p className={`text-xs font-semibold ${
+            gameMode.current === 'blitz' || gameMode.current === 'bloodlust' ? 'text-yellow-400' : 'text-red-400'
+          }`}>
+            ⚠️ Only {totalQuestionTime} seconds to answer!
+          </p>
+        </div>
+      </div>
+
+      {/* Combat Log */}
+      <div className="bg-black/40 rounded-lg p-3 sm:p-4 max-h-32 sm:max-h-40 overflow-y-auto">
+        <h4 className="text-white font-semibold mb-2 text-sm sm:text-base">Combat Log</h4>
+        <div className="space-y-1">
+          {combatLog.slice(-6).map((log, index) => (
+            <p key={index} className="text-xs sm:text-sm text-gray-300">
+              {log}
+            </p>
           ))}
         </div>
       </div>
-    );
-  } catch (error) {
-    console.error('Combat render error:', error);
-    return <div className="text-red-500 p-4">Error loading combat component.</div>;
-  }
+    </div>
+  );
 };
