@@ -13,7 +13,6 @@ import { PokyegMarket } from './components/PokyegMarket';
 import { Tutorial } from './components/Tutorial';
 import { CheatPanel } from './components/CheatPanel';
 import { Mining } from './components/Mining';
-import { PromoCode } from './components/PromoCode';
 import { FloatingIcons } from './components/FloatingIcons';
 import { FloatingText, ScreenShake } from './components/VisualEffects';
 import { Shield, Package, User, Play, RotateCcw, Brain, Crown, Trophy, Book, BarChart3, Settings, Pickaxe, Gift } from 'lucide-react';
@@ -44,7 +43,6 @@ function App() {
     generateCheatItem,
     mineGem,
     purchaseMiningTool,
-    redeemPromoCode,
     discardItem,
   } = useGameState();
 
