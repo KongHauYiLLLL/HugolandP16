@@ -384,7 +384,7 @@ export const Combat: React.FC<CombatProps> = ({
             )}
           </div>
         )}
-          <p>
+
                     Answer correctly to <span className="text-green-400 font-semibold">deal damage</span>!
           </p>
           <p className={`text-xs font-semibold ${
@@ -393,6 +393,7 @@ export const Combat: React.FC<CombatProps> = ({
             ⚠️ Only {totalQuestionTime} seconds to answer!
           </p>
         </div>
+      </div>
 
       {/* Combat Log */}
       <div className="bg-black/40 rounded-lg p-3 sm:p-4 max-h-32 sm:max-h-40 overflow-y-auto">
@@ -404,5 +405,7 @@ export const Combat: React.FC<CombatProps> = ({
             </p>
           ))}
         </div>
+      </div>
+    </div>
   );
 };
