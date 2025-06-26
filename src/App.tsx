@@ -457,7 +457,6 @@ function App() {
               { id: 'shop', label: 'Shop', icon: Package },
               { id: 'inventory', label: 'Inventory', icon: Shield },
               { id: 'mining', label: 'Mining', icon: Pickaxe },
-              { id: 'promo', label: 'Promo', icon: Gift },
             ].map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
