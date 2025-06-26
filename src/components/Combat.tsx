@@ -167,13 +167,6 @@ export const Combat: React.FC<CombatProps> = ({
     return (
       <div className="bg-gradient-to-br from-red-900 via-purple-900 to-black p-3 sm:p-6 rounded-lg shadow-2xl">
         <div className="text-center py-8">
-          <div className="animate-pulse mb-6">
-            <img 
-              src="https://placehold.co/600x300" 
-              alt="Victory celebration with golden trophy and confetti" 
-              className="mx-auto rounded-lg"
-            />
-          </div>
           <h2 className="text-3xl font-bold text-yellow-400 mb-4">VICTORY!</h2>
           <p className="text-white text-xl mb-6">You defeated {enemy.name}!</p>
           <div className="animate-pulse">
