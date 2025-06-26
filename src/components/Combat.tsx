@@ -404,6 +404,5 @@ export const Combat: React.FC<CombatProps> = ({
             </p>
           ))}
         </div>
-      </div>
   );
 };
