@@ -290,7 +290,6 @@ export const applyPowerSkillEffects = (
         if (context === 'round_start' && skill.effect.currentCooldown === 0) {
           result.healAmount = (result.healAmount || 0) + Math.floor(result.maxHp * (skill.effect.value! / 100));
           )
-          )
           skill.effect.currentCooldown = skill.effect.cooldown!;
         }
         break;
