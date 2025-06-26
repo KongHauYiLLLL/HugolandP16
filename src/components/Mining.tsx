@@ -93,7 +93,7 @@ export const Mining: React.FC<MiningProps> = ({ mining, gems, onMineGem, onPurch
     return cells;
   };
 
-  return (
+    return (
     <div className="bg-gradient-to-br from-gray-900 via-slate-900 to-gray-800 p-4 sm:p-6 rounded-lg shadow-2xl">
       <div className="text-center mb-4 sm:mb-6">
         <div className="flex items-center justify-center gap-2 mb-2">
@@ -101,12 +101,14 @@ export const Mining: React.FC<MiningProps> = ({ mining, gems, onMineGem, onPurch
           <h2 className="text-xl sm:text-2xl font-bold text-white">Gem Mining</h2>
         </div>
         <p className="text-gray-300 text-sm sm:text-base">Click gem nodes to mine them instantly!</p>
-        
+
         <div className="flex items-center justify-center gap-4 mt-3">
           <div className="flex items-center gap-2 text-purple-300">
             <Gem className="w-4 h-4 sm:w-5 sm:h-5" />
             <span className="font-semibold text-sm sm:text-base">{gems} Gems</span>
           </div>
+        </div>
+      </div>
 
       {/* Mining Grid */}
       <div className="mb-4 sm:mb-6">
@@ -165,15 +167,15 @@ export const Mining: React.FC<MiningProps> = ({ mining, gems, onMineGem, onPurch
                     <h3 className="text-white font-semibold text-sm sm:text-base">{tool.name}</h3>
                     {tool.owned && <Star className="w-4 h-4 text-green-400" />}
                   </div>
-                  
+
                   <p className="text-gray-300 text-xs sm:text-sm mb-3">{tool.description}</p>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1 text-purple-300">
                       <Gem className="w-3 h-3 sm:w-4 sm:h-4" />
                       <span className="font-semibold text-xs sm:text-sm">{tool.cost}</span>
                     </div>
-                    
+
                     <button
                       onClick={() => onPurchaseTool(tool.id)}
                       disabled={tool.owned || gems < tool.cost}
@@ -199,5 +201,7 @@ export const Mining: React.FC<MiningProps> = ({ mining, gems, onMineGem, onPurch
             </div>
           </div>
         </div>
+      )}
+    </div>
   );
 };
