@@ -393,7 +393,6 @@ export const Combat: React.FC<CombatProps> = ({
             ⚠️ Only {totalQuestionTime} seconds to answer!
           </p>
         </div>
-      </div>
 
       {/* Combat Log */}
       <div className="bg-black/40 rounded-lg p-3 sm:p-4 max-h-32 sm:max-h-40 overflow-y-auto">
@@ -406,6 +405,5 @@ export const Combat: React.FC<CombatProps> = ({
           ))}
         </div>
       </div>
-    </div>
   );
 };
