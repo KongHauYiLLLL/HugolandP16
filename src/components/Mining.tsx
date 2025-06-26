@@ -31,7 +31,7 @@ export const Mining: React.FC<MiningProps> = ({ mining, gems, onMineGem, onPurch
       x: Math.floor(Math.random() * GRID_SIZE),
       y: Math.floor(Math.random() * GRID_SIZE),
       clicks: 0,
-      maxClicks: 1, // Changed to 1 click = 1 gem
+      maxClicks: 5, // Changed to 1 click = 1 gem
       id: Math.random().toString(36).substr(2, 9),
     };
     return newNode;
