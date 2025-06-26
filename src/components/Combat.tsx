@@ -389,7 +389,6 @@ export const Combat: React.FC<CombatProps> = ({
           </p>
         </div>
       </div>
-      {/* Combat Log */}
       <div className="bg-black/40 rounded-lg p-3 sm:p-4 max-h-32 sm:max-h-40 overflow-y-auto">
         <h4 className="text-white font-semibold mb-2 text-sm sm:text-base">Combat Log</h4>
         <div className="space-y-1">
