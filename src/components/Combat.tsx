@@ -11,7 +11,7 @@ interface CombatProps {
     atk: number;
     def: number;
   };
-  onAttack: (hit: boolean, category?: string, damage?: number) => void;
+  onAttack: (hit: boolean, category?: string) => void;
   combatLog: string[];
   gameMode: {
     current: 'normal' | 'blitz' | 'bloodlust' | 'crazy';
@@ -25,7 +25,6 @@ interface CombatProps {
     multiplier: number;
   };
   powerSkills: PowerSkill[];
-  onEnemyDefeated: () => void;
 }
 
 export const Combat: React.FC<CombatProps> = ({ 
@@ -35,8 +34,7 @@ export const Combat: React.FC<CombatProps> = ({
   combatLog, 
   gameMode,
   knowledgeStreak,
-  powerSkills,
-  onEnemyDefeated
+  powerSkills 
 }) => {
   const [currentQuestion, setCurrentQuestion] = useState<TriviaQuestion | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -45,7 +43,6 @@ export const Combat: React.FC<CombatProps> = ({
   const [showResult, setShowResult] = useState(false);
   const [lastAnswerCorrect, setLastAnswerCorrect] = useState<boolean | null>(null);
   const [showFreeAnswer, setShowFreeAnswer] = useState(false);
-  const [showVictory, setShowVictory] = useState(false);
 
   const questionTime = (gameMode.current === 'blitz' || gameMode.current === 'bloodlust') ? 3 : 5;
   
@@ -65,7 +62,6 @@ export const Combat: React.FC<CombatProps> = ({
     setShowResult(false);
     setLastAnswerCorrect(null);
     setShowFreeAnswer(freeAnswerSkill ? true : false);
-    setShowVictory(false);
   }, [enemy, totalQuestionTime, freeAnswerSkill]);
 
   useEffect(() => {
@@ -85,7 +81,7 @@ export const Combat: React.FC<CombatProps> = ({
   }, [currentQuestion, isAnswering, showResult]);
 
   const handleAnswer = (answerIndex: number | null) => {
-    if (isAnswering || !currentQuestion || showVictory) return;
+    if (isAnswering || !currentQuestion) return;
 
     setIsAnswering(true);
     setSelectedAnswer(answerIndex);
@@ -95,24 +91,16 @@ export const Combat: React.FC<CombatProps> = ({
     setShowResult(true);
 
     setTimeout(() => {
-      const damage = isCorrect ? playerStats.atk : 0;
-      onAttack(isCorrect, currentQuestion.category, damage);
+      onAttack(isCorrect, currentQuestion.category);
       
-      if (enemy.hp - damage <= 0) {
-        setShowVictory(true);
-        setTimeout(() => {
-          onEnemyDefeated();
-        }, 1500);
-      } else {
-        const newQuestion = getQuestionByZone(enemy.zone);
-        setCurrentQuestion(newQuestion);
-        setSelectedAnswer(null);
-        setIsAnswering(false);
-        setTimeLeft(totalQuestionTime);
-        setShowResult(false);
-        setLastAnswerCorrect(null);
-        setShowFreeAnswer(false);
-      }
+      const newQuestion = getQuestionByZone(enemy.zone);
+      setCurrentQuestion(newQuestion);
+      setSelectedAnswer(null);
+      setIsAnswering(false);
+      setTimeLeft(totalQuestionTime);
+      setShowResult(false);
+      setLastAnswerCorrect(null);
+      setShowFreeAnswer(false); // Only show free answer for first question
     }, 2000);
   };
 
@@ -163,20 +151,6 @@ export const Combat: React.FC<CombatProps> = ({
     );
   }
 
-  if (showVictory) {
-    return (
-      <div className="bg-gradient-to-br from-red-900 via-purple-900 to-black p-3 sm:p-6 rounded-lg shadow-2xl">
-        <div className="text-center py-8">
-          <h2 className="text-3xl font-bold text-yellow-400 mb-4">VICTORY!</h2>
-          <p className="text-white text-xl mb-6">You defeated {enemy.name}!</p>
-          <div className="animate-pulse">
-            <p className="text-green-400 text-xl">Proceeding to stats...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="bg-gradient-to-br from-red-900 via-purple-900 to-black p-3 sm:p-6 rounded-lg shadow-2xl">
       <div className="text-center mb-4 sm:mb-6">
@@ -186,6 +160,7 @@ export const Combat: React.FC<CombatProps> = ({
         </div>
         <p className="text-red-300 text-base sm:text-lg font-semibold">{enemy.name}</p>
         
+        {/* Game Mode Info */}
         <div className="flex items-center justify-center gap-4 mt-2 text-sm">
           <span className={`px-2 py-1 rounded ${getModeColor()} text-white font-semibold`}>
             {gameMode.current.toUpperCase()} MODE
@@ -199,6 +174,7 @@ export const Combat: React.FC<CombatProps> = ({
         </div>
       </div>
 
+      {/* Active Power Skills */}
       {powerSkills.length > 0 && (
         <div className="mb-4">
           <h3 className="text-white font-semibold mb-2 text-sm">⚡ Active Power Skills</h3>
@@ -229,6 +205,7 @@ export const Combat: React.FC<CombatProps> = ({
         </div>
       )}
 
+      {/* Health Bars */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
         <div className="bg-black/30 p-3 sm:p-4 rounded-lg">
           <div className="flex items-center gap-2 mb-2">
@@ -255,8 +232,8 @@ export const Combat: React.FC<CombatProps> = ({
         </div>
 
         <div className="bg-black/30 p-3 sm:p-4 rounded-lg">
-          <div className="flex items-center gap=2 mb-2">
-            <Heart className="w-4 h-4 sm:w-5 sm=h-5 text-red-400" />
+          <div className="flex items-center gap-2 mb-2">
+            <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
             <span className="text-white font-semibold text-sm sm:text-base">{enemy.name}</span>
             {enemy.isPoisoned && (
               <Droplets className="w-4 h-4 text-green-400 animate-pulse" />
@@ -287,6 +264,7 @@ export const Combat: React.FC<CombatProps> = ({
         </div>
       </div>
 
+      {/* Trivia Question Section */}
       <div className="mb-4 sm:mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -303,6 +281,7 @@ export const Combat: React.FC<CombatProps> = ({
           </div>
         </div>
 
+        {/* Question Card */}
         <div className={`bg-black/40 p-4 sm:p-6 rounded-lg border-2 ${getDifficultyBorder(currentQuestion.difficulty)} mb-4`}>
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs sm:text-sm text-gray-400">{currentQuestion.category}</span>
@@ -314,6 +293,7 @@ export const Combat: React.FC<CombatProps> = ({
             {currentQuestion.question}
           </p>
 
+          {/* Free Answer Hint */}
           {showFreeAnswer && (
             <div className="mb-3 p-2 bg-blue-900/50 border border-blue-500/50 rounded">
               <p className="text-blue-300 text-xs text-center">
@@ -322,6 +302,7 @@ export const Combat: React.FC<CombatProps> = ({
             </div>
           )}
 
+          {/* Answer Options */}
           <div className="grid grid-cols-1 gap-2 sm:gap-3">
             {currentQuestion.options.map((option, index) => {
               let buttonClass = 'bg-gray-700 hover:bg-gray-600 text-white';
@@ -357,6 +338,7 @@ export const Combat: React.FC<CombatProps> = ({
           </div>
         </div>
 
+        {/* Result Feedback */}
         {showResult && (
           <div className={`text-center p-3 sm:p-4 rounded-lg ${
             lastAnswerCorrect 
@@ -367,7 +349,7 @@ export const Combat: React.FC<CombatProps> = ({
               lastAnswerCorrect ? 'text-green-400' : 'text-red-400'
             }`}>
               {lastAnswerCorrect 
-                ? '🎉 Correct! You deal damage!'
+                ? '🎉 Correct! You deal damage!' 
                 : '❌ Wrong! The enemy attacks you!'}
             </p>
             {!lastAnswerCorrect && (
@@ -377,8 +359,10 @@ export const Combat: React.FC<CombatProps> = ({
             )}
           </div>
         )}
-          <p>
-                    Answer correctly to <span className="text-green-400 font-semibold">deal damage</span>!
+
+        <div className="text-center mt-3">
+          <p className="text-xs sm:text-sm text-gray-300">
+            Answer correctly to <span className="text-green-400 font-semibold">deal damage</span>!
           </p>
           <p className={`text-xs font-semibold ${
             gameMode.current === 'blitz' || gameMode.current === 'bloodlust' ? 'text-yellow-400' : 'text-red-400'
@@ -388,16 +372,17 @@ export const Combat: React.FC<CombatProps> = ({
         </div>
       </div>
 
-        <div className="bg-black/40 rounded-lg p-3 sm:p-4 max-h-32 sm:max-h-40 overflow-y-auto">
-          <h4 className="text-white font-semibold mb-2 text-sm sm:text-base">Combat Log</h4>
-          <div className="space-y-1">
-            {combatLog.slice(-6).map((log, index) => (
-              <p key={index} className="text-xs sm:text-sm text-gray-300">
-                {log}
-              </p>
-            ))}
-          </div>
+      {/* Combat Log */}
+      <div className="bg-black/40 rounded-lg p-3 sm:p-4 max-h-32 sm:max-h-40 overflow-y-auto">
+        <h4 className="text-white font-semibold mb-2 text-sm sm:text-base">Combat Log</h4>
+        <div className="space-y-1">
+          {combatLog.slice(-6).map((log, index) => (
+            <p key={index} className="text-xs sm:text-sm text-gray-300">
+              {log}
+            </p>
+          ))}
         </div>
       </div>
-    );
-  };
+    </div>
+  );
+};
