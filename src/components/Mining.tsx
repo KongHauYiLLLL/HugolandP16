@@ -19,7 +19,7 @@ interface GemNode {
 
 const miningTools = [
   { id: 'basic', name: 'Basic Pickaxe', cost: 10, owned: false, description: 'Mine 1 gem.' },
-  { id: 'super', name: 'Super Pickaxe', cost: 50, owned: false, description: 'Mine 3 gems.' },
+  { id: 'supe', name: 'Super Pickaxe', cost: 50, owned: false, description: 'Mine 3 gems.' },
 ];
 
 
