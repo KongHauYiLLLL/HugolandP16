@@ -309,8 +309,8 @@ export const applyPowerSkillEffects = (
       case 'vampire':
         if (context === 'damage_dealt') {
           result.healAmount = (result.healAmount || 0) + Math.floor(result.damage * (skill.effect.value! / 100));
-          )
-          )
+          
+          
         }
         break;
         
