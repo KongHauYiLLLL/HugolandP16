@@ -199,6 +199,5 @@ export const Mining: React.FC<MiningProps> = ({ mining, gems, onMineGem, onPurch
             </div>
           </div>
         </div>
-      )}
   );
 };
