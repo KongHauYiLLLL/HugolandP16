@@ -5,10 +5,11 @@ import { X, Coins, Gem, Package, ToggleLeft, ToggleRight } from 'lucide-react';
 interface CheatPanelProps {
   cheats: CheatSettings;
   onToggleCheat: (cheat: keyof CheatSettings) => void;
+  onGenerateItem: () => void;
   onClose: () => void;
 }
 
-export const CheatPanel: React.FC<CheatPanelProps> = ({ cheats, onToggleCheat, onClose }) => {
+export const CheatPanel: React.FC<CheatPanelProps> = ({ cheats, onToggleCheat, onGenerateItem, onClose }) => {
   const cheatList = [
     {
       key: 'infiniteCoins' as keyof CheatSettings,
@@ -121,6 +122,16 @@ export const CheatPanel: React.FC<CheatPanelProps> = ({ cheats, onToggleCheat, o
               </div>
             );
           })}
+        </div>
+
+        {/* Generate Item Button */}
+        <div className="mt-6">
+          <button
+            onClick={onGenerateItem}
+            className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all duration-200"
+          >
+            🎁 Generate Random Item
+          </button>
         </div>
 
         {/* Footer */}

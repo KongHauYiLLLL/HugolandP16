@@ -477,8 +477,27 @@ export const useGameState = () => {
   }, []);
 
   const generateCheatItem = useCallback(() => {
-    console.log('Generate cheat item functionality not implemented yet');
-  }, []);
+    const isWeapon = Math.random() < 0.5;
+    const rarities = ['common', 'rare', 'epic', 'legendary', 'mythical'];
+    const randomRarity = rarities[Math.floor(Math.random() * rarities.length)];
+    
+    const item = isWeapon ? generateWeapon(false, randomRarity) : generateArmor(false, randomRarity);
+    
+    setGameState(prev => ({
+      ...prev,
+      inventory: {
+        ...prev.inventory,
+        weapons: isWeapon ? [...prev.inventory.weapons, item as Weapon] : prev.inventory.weapons,
+        armor: !isWeapon ? [...prev.inventory.armor, item as Armor] : prev.inventory.armor,
+      },
+    }));
+
+    updateCollectionBook(item);
+    triggerVisualEffect('text', { 
+      text: `Cheat Item Generated: ${item.name}!`, 
+      color: 'text-purple-400' 
+    });
+  }, [updateCollectionBook, triggerVisualEffect]);
 
   const mineGem = useCallback((x: number, y: number): boolean => {
     setGameState(prev => ({

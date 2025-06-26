@@ -289,8 +289,6 @@ export const applyPowerSkillEffects = (
       case 'heal':
         if (context === 'round_start' && skill.effect.currentCooldown === 0) {
           result.healAmount = (result.healAmount || 0) + Math.floor(result.maxHp * (skill.effect.value! / 100));
-          )
-          )
           skill.effect.currentCooldown = skill.effect.cooldown!;
         }
         break;
@@ -311,8 +309,6 @@ export const applyPowerSkillEffects = (
       case 'vampire':
         if (context === 'damage_dealt') {
           result.healAmount = (result.healAmount || 0) + Math.floor(result.damage * (skill.effect.value! / 100));
-          )
-          )
         }
         break;
         
