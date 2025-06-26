@@ -31,7 +31,7 @@ export const Mining: React.FC<MiningProps> = ({ mining, gems, onMineGem, onPurch
       x: Math.floor(Math.random() * GRID_SIZE),
       y: Math.floor(Math.random() * GRID_SIZE),
       clicks: 0,
-      maxClicks: 5, // Changed to 1 click = 1 gem
+      maxClicks: 1, // Changed to 1 click = 1 gem
       id: Math.random().toString(36).substr(2, 9),
     };
     return newNode;
@@ -93,41 +93,6 @@ export const Mining: React.FC<MiningProps> = ({ mining, gems, onMineGem, onPurch
     return cells;
   };
 
-  const miningTools: MiningTool[] = [
-    {
-      id: 'basic_pickaxe',
-      name: 'Iron Pickaxe',
-      description: '+1 mining efficiency',
-      cost: 50,
-      efficiency: 1,
-      owned: mining.tools.basic_pickaxe || false,
-    },
-    {
-      id: 'steel_pickaxe',
-      name: 'Steel Pickaxe',
-      description: '+2 mining efficiency',
-      cost: 200,
-      efficiency: 2,
-      owned: mining.tools.steel_pickaxe || false,
-    },
-    {
-      id: 'diamond_pickaxe',
-      name: 'Diamond Pickaxe',
-      description: '+3 mining efficiency',
-      cost: 500,
-      efficiency: 3,
-      owned: mining.tools.diamond_pickaxe || false,
-    },
-    {
-      id: 'mythical_pickaxe',
-      name: 'Mythical Pickaxe',
-      description: '+5 mining efficiency',
-      cost: 1000,
-      efficiency: 5,
-      owned: mining.tools.mythical_pickaxe || false,
-    },
-  ];
-
   return (
     <div className="bg-gradient-to-br from-gray-900 via-slate-900 to-gray-800 p-4 sm:p-6 rounded-lg shadow-2xl">
       <div className="text-center mb-4 sm:mb-6">
@@ -142,12 +107,6 @@ export const Mining: React.FC<MiningProps> = ({ mining, gems, onMineGem, onPurch
             <Gem className="w-4 h-4 sm:w-5 sm:h-5" />
             <span className="font-semibold text-sm sm:text-base">{gems} Gems</span>
           </div>
-          <div className="flex items-center gap-2 text-orange-300">
-            <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span className="font-semibold text-sm sm:text-base">Efficiency: {mining.efficiency}</span>
-          </div>
-        </div>
-      </div>
 
       {/* Mining Grid */}
       <div className="mb-4 sm:mb-6">
@@ -156,7 +115,7 @@ export const Mining: React.FC<MiningProps> = ({ mining, gems, onMineGem, onPurch
           {renderMiningGrid()}
         </div>
         <p className="text-center text-gray-400 text-xs sm:text-sm mt-3">
-          Purple gems appear randomly. Click once to mine 1 gem!
+          Purple gems appear randomly. Click once to mine a gem!
         </p>
       </div>
 
@@ -167,7 +126,7 @@ export const Mining: React.FC<MiningProps> = ({ mining, gems, onMineGem, onPurch
           className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-orange-600 to-yellow-600 text-white font-bold rounded-lg hover:from-orange-500 hover:to-yellow-500 transition-all duration-200 flex items-center gap-2 mx-auto text-sm sm:text-base"
         >
           <Pickaxe className="w-4 h-4 sm:w-5 sm:h-5" />
-          Mining Shop
+          Random button
         </button>
       </div>
 
