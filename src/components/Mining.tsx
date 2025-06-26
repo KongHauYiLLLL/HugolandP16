@@ -17,6 +17,14 @@ interface GemNode {
   id: string;
 }
 
+const miningTools = [
+  { id: 'basic', name: 'Basic Pickaxe', cost: 10, owned: false, description: 'Mine 1 gem.' },
+  { id: 'super', name: 'Super Pickaxe', cost: 50, owned: false, description: 'Mine 3 gems.' },
+];
+
+
+
+
 export const Mining: React.FC<MiningProps> = ({ mining, gems, onMineGem, onPurchaseTool }) => {
   const [gemNodes, setGemNodes] = useState<GemNode[]>([]);
   const [showShop, setShowShop] = useState(false);
