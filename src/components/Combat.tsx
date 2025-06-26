@@ -404,8 +404,5 @@ export const Combat: React.FC<CombatProps> = ({
               {log}
             </p>
           ))}
-        </div>
-      </div>
-    </div>
   );
 };
