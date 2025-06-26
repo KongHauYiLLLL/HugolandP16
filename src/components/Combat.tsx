@@ -11,7 +11,7 @@ interface CombatProps {
     atk: number;
     def: number;
   };
-  onAttack: (hit: boolean, category?: string) => void;
+  onAttack: (hit: boolean, category?: string, damage?: number) => void;
   combatLog: string[];
   gameMode: {
     current: 'normal' | 'blitz' | 'bloodlust' | 'crazy';
@@ -25,6 +25,7 @@ interface CombatProps {
     multiplier: number;
   };
   powerSkills: PowerSkill[];
+  onEnemyDefeated: () => void;
 }
 
 export const Combat: React.FC<CombatProps> = ({ 
@@ -34,7 +35,8 @@ export const Combat: React.FC<CombatProps> = ({
   combatLog, 
   gameMode,
   knowledgeStreak,
-  powerSkills 
+  powerSkills,
+  onEnemyDefeated
 }) => {
   const [currentQuestion, setCurrentQuestion] = useState<TriviaQuestion | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -43,6 +45,7 @@ export const Combat: React.FC<CombatProps> = ({
   const [showResult, setShowResult] = useState(false);
   const [lastAnswerCorrect, setLastAnswerCorrect] = useState<boolean | null>(null);
   const [showFreeAnswer, setShowFreeAnswer] = useState(false);
+  const [showVictory, setShowVictory] = useState(false);
 
   const questionTime = (gameMode.current === 'blitz' || gameMode.current === 'bloodlust') ? 3 : 5;
   
@@ -62,6 +65,7 @@ export const Combat: React.FC<CombatProps> = ({
     setShowResult(false);
     setLastAnswerCorrect(null);
     setShowFreeAnswer(freeAnswerSkill ? true : false);
+    setShowVictory(false);
   }, [enemy, totalQuestionTime, freeAnswerSkill]);
 
   useEffect(() => {
@@ -81,7 +85,7 @@ export const Combat: React.FC<CombatProps> = ({
   }, [currentQuestion, isAnswering, showResult]);
 
   const handleAnswer = (answerIndex: number | null) => {
-    if (isAnswering || !currentQuestion) return;
+    if (isAnswering || !currentQuestion || showVictory) return;
 
     setIsAnswering(true);
     setSelectedAnswer(answerIndex);
@@ -91,16 +95,29 @@ export const Combat: React.FC<CombatProps> = ({
     setShowResult(true);
 
     setTimeout(() => {
-      onAttack(isCorrect, currentQuestion.category);
+      // Calculate damage dealt (assuming player atk is the damage)
+      const damage = isCorrect ? playerStats.atk : 0;
       
-      const newQuestion = getQuestionByZone(enemy.zone);
-      setCurrentQuestion(newQuestion);
-      setSelectedAnswer(null);
-      setIsAnswering(false);
-      setTimeLeft(totalQuestionTime);
-      setShowResult(false);
-      setLastAnswerCorrect(null);
-      setShowFreeAnswer(false); // Only show free answer for first question
+      // Call onAttack with damage parameter
+      onAttack(isCorrect, currentQuestion.category, damage);
+      
+      // Check if enemy will be defeated after this attack
+      if (enemy.hp - damage <= 0) {
+        setShowVictory(true);
+        setTimeout(() => {
+          onEnemyDefeated();
+        }, 1500);
+      } else {
+        // Continue with next question if enemy still alive
+        const newQuestion = getQuestionByZone(enemy.zone);
+        setCurrentQuestion(newQuestion);
+        setSelectedAnswer(null);
+        setIsAnswering(false);
+        setTimeLeft(totalQuestionTime);
+        setShowResult(false);
+        setLastAnswerCorrect(null);
+        setShowFreeAnswer(false); // Only show free answer for first question
+      }
     }, 2000);
   };
 
@@ -146,6 +163,27 @@ export const Combat: React.FC<CombatProps> = ({
         <div className="text-center py-8">
           <div className="animate-spin inline-block w-8 h-8 border-4 border-purple-400 border-t-transparent rounded-full mb-4"></div>
           <p className="text-white text-lg">Loading question...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (showVictory) {
+    return (
+      <div className="bg-gradient-to-br from-red-900 via-purple-900 to-black p-3 sm:p-6 rounded-lg shadow-2xl">
+        <div className="text-center py-8">
+          <div className="animate-pulse mb-6">
+            <img 
+              src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/35c157bf-21bc-41f2-a2cb-66f9e5959788.png" 
+              alt="Victory celebration with golden trophy and confetti" 
+              className="mx-auto rounded-lg"
+            />
+          </div>
+          <h2 className="text-3xl font-bold text-yellow-400 mb-4">VICTORY!</h2>
+          <p className="text-white text-xl mb-6">You defeated {enemy.name}!</p>
+          <div className="animate-pulse">
+            <p className="text-green-400 text-xl">Proceeding to stats...</p>
+          </div>
         </div>
       </div>
     );
@@ -349,40 +387,4 @@ export const Combat: React.FC<CombatProps> = ({
               lastAnswerCorrect ? 'text-green-400' : 'text-red-400'
             }`}>
               {lastAnswerCorrect 
-                ? '🎉 Correct! You deal damage!' 
-                : '❌ Wrong! The enemy attacks you!'}
-            </p>
-            {!lastAnswerCorrect && (
-              <p className="text-gray-300 text-xs sm:text-sm mt-1">
-                Correct answer: {String.fromCharCode(65 + currentQuestion.correctAnswer)}. {currentQuestion.options[currentQuestion.correctAnswer]}
-              </p>
-            )}
-          </div>
-        )}
-
-        <div className="text-center mt-3">
-          <p className="text-xs sm:text-sm text-gray-300">
-            Answer correctly to <span className="text-green-400 font-semibold">deal damage</span>!
-          </p>
-          <p className={`text-xs font-semibold ${
-            gameMode.current === 'blitz' || gameMode.current === 'bloodlust' ? 'text-yellow-400' : 'text-red-400'
-          }`}>
-            ⚠️ Only {totalQuestionTime} seconds to answer!
-          </p>
-        </div>
-      </div>
-
-      {/* Combat Log */}
-      <div className="bg-black/40 rounded-lg p-3 sm:p-4 max-h-32 sm:max-h-40 overflow-y-auto">
-        <h4 className="text-white font-semibold mb-2 text-sm sm:text-base">Combat Log</h4>
-        <div className="space-y-1">
-          {combatLog.slice(-6).map((log, index) => (
-            <p key={index} className="text-xs sm:text-sm text-gray-300">
-              {log}
-            </p>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
+                ? '🎉 Correct! You deal damage!'
