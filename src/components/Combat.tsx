@@ -55,6 +55,7 @@ export const Combat: React.FC<CombatProps> = ({
 
   const freeAnswerSkill = powerSkills.find(skill => skill.effect.type === 'free_answer' && skill.isActive);
 
+  // Load new question & reset state on enemy, time, or free answer skill change
   useEffect(() => {
     const question = getQuestionByZone(enemy.zone);
     setCurrentQuestion(question);
@@ -65,8 +66,10 @@ export const Combat: React.FC<CombatProps> = ({
     setShowFreeAnswer(!!freeAnswerSkill);
   }, [enemy, totalQuestionTime, freeAnswerSkill]);
 
+  // Timer countdown effect
   useEffect(() => {
     if (!currentQuestion || isAnswering || showResult) return;
+
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
@@ -76,10 +79,11 @@ export const Combat: React.FC<CombatProps> = ({
         return prev - 1;
       });
     }, 1000);
+
     return () => clearInterval(timer);
   }, [currentQuestion, isAnswering, showResult]);
 
-  // 🔥 Handle player loss
+  // Check player HP to trigger loss
   useEffect(() => {
     if (playerStats.hp <= 0) {
       onLose();
@@ -107,13 +111,6 @@ export const Combat: React.FC<CombatProps> = ({
       setLastAnswerCorrect(null);
       setShowFreeAnswer(false);
     }, 2000);
-
-    useEffect(() => {
-  if (playerStats.hp != null && playerStats.hp <= 0) {
-    onLose();
-  }
-}, [playerStats.hp, onLose]);
-
   };
 
   const getDifficultyColor = (difficulty: string) => {
