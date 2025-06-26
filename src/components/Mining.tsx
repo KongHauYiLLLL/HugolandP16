@@ -93,7 +93,7 @@ export const Mining: React.FC<MiningProps> = ({ mining, gems, onMineGem, onPurch
     return cells;
   };
 
-    return (
+      return (
     <div className="bg-gradient-to-br from-gray-900 via-slate-900 to-gray-800 p-4 sm:p-6 rounded-lg shadow-2xl">
       <div className="text-center mb-4 sm:mb-6">
         <div className="flex items-center justify-center gap-2 mb-2">
@@ -127,6 +127,78 @@ export const Mining: React.FC<MiningProps> = ({ mining, gems, onMineGem, onPurch
           onClick={() => setShowShop(true)}
           className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-orange-600 to-yellow-600 text-white font-bold rounded-lg hover:from-orange-500 hover:to-yellow-500 transition-all duration-200 flex items-center gap-2 mx-auto text-sm sm:text-base"
         >
+          <Pickaxe className="w-4 h-4 sm:w-5 sm:h-5" />
+          Random button
+        </button>
+      </div>
+
+      {/* Mining Shop Modal */}
+      {showShop && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-orange-900 to-yellow-900 p-4 sm:p-6 rounded-lg border border-orange-500/50 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center gap-3">
+                <Pickaxe className="w-6 h-6 sm:w-8 sm:h-8 text-orange-400" />
+                <div>
+                  <h2 className="text-white font-bold text-lg sm:text-xl">Mining Shop</h2>
+                  <p className="text-orange-300 text-sm">Upgrade your mining tools</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowShop(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {miningTools.map((tool) => (
+                <div
+                  key={tool.id}
+                  className={`p-4 rounded-lg border-2 transition-all ${
+                    tool.owned
+                      ? 'border-green-500 bg-green-900/30'
+                      : 'border-orange-500/50 bg-black/30'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <Pickaxe className="w-5 h-5 text-orange-400" />
+                    <h3 className="text-white font-semibold text-sm sm:text-base">{tool.name}</h3>
+                    {tool.owned && <Star className="w-4 h-4 text-green-400" />}
+                  </div>
+
+                  <p className="text-gray-300 text-xs sm:text-sm mb-3">{tool.description}</p>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1 text-purple-300">
+                      <Gem className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <span className="font-semibold text-xs sm:text-sm">{tool.cost}</span>
+                    </div>
+
+                    <button
+                      onClick={() => onPurchaseTool(tool.id)}
+                      disabled={tool.owned || gems < tool.cost}
+                      className={`px-3 py-1 rounded font-semibold transition-all text-xs sm:text-sm ${
+                        tool.owned
+                          ? 'bg-green-600 text-white cursor-not-allowed'
+                          : gems >= tool.cost
+                          ? 'bg-orange-600 text-white hover:bg-orange-500'
+                          : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                      }`}
+                    >
+                      {tool.owned ? 'Owned' : gems >= tool.cost ? 'Buy' : 'Need More Gems'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 text-center">
+              <p className="text-orange-300 text-xs sm:text-sm">
+                Higher efficiency tools give you more gems per click!
+              </p>
+            </div>
           </div>
         </div>
       )}
