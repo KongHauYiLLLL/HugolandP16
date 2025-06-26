@@ -178,11 +178,6 @@ export const Mining: React.FC<MiningProps> = ({ mining, gems, onMineGem, onPurch
 
                   <p className="text-gray-300 text-xs sm:text-sm mb-3">{tool.description}</p>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-purple-300">
-                      <Gem className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span className="font-semibold text-xs sm:text-sm">{tool.cost}</span>
-                    </div>
 
                     <button
                       onClick={() => onPurchaseTool(tool.id)}
