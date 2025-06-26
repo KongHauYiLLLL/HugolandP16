@@ -384,7 +384,7 @@ export const Combat: React.FC<CombatProps> = ({
             )}
           </div>
         )}
-
+          <p>
                     Answer correctly to <span className="text-green-400 font-semibold">deal damage</span>!
           </p>
           <p className={`text-xs font-semibold ${
