@@ -16,8 +16,8 @@ export default defineConfig({
         'robots.txt'
       ],
       manifest: {
-        name: 'Gem Mining Game',
-        short_name: 'GemGame',
+        name: 'Hugoland25',
+        short_name: 'Hugoland',
         start_url: '/',
         display: 'standalone',
         background_color: '#121212',
