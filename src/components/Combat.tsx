@@ -388,16 +388,16 @@ export const Combat: React.FC<CombatProps> = ({
         </div>
       </div>
 
-      <div className="bg-black/40 rounded-lg p-3 sm:p-4 max-h-32 sm:max-h-40 overflow-y-auto">
-        <h4 className="text-white font-semibold mb-2 text-sm sm:text-base">Combat Log</h4>
-        <div className="space-y-1">
-          {combatLog.slice(-6).map((log, index) => (
-            <p key={index} className="text-xs sm:text-sm text-gray-300">
-              {log}
-            </p>
-          ))}
+        <div className="bg-black/40 rounded-lg p-3 sm:p-4 max-h-32 sm:max-h-40 overflow-y-auto">
+          <h4 className="text-white font-semibold mb-2 text-sm sm:text-base">Combat Log</h4>
+          <div className="space-y-1">
+            {combatLog.slice(-6).map((log, index) => (
+              <p key={index} className="text-xs sm:text-sm text-gray-300">
+                {log}
+              </p>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
