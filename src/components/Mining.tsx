@@ -101,7 +101,7 @@ export const Mining: React.FC<MiningProps> = ({ mining, gems, onMineGem, onPurch
     return cells;
   };
 
-      return (
+        return (
     <div className="bg-gradient-to-br from-gray-900 via-slate-900 to-gray-800 p-4 sm:p-6 rounded-lg shadow-2xl">
       <div className="text-center mb-4 sm:mb-6">
         <div className="flex items-center justify-center gap-2 mb-2">
@@ -178,6 +178,11 @@ export const Mining: React.FC<MiningProps> = ({ mining, gems, onMineGem, onPurch
 
                   <p className="text-gray-300 text-xs sm:text-sm mb-3">{tool.description}</p>
 
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1 text-purple-300">
+                      <Gem className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <span className="font-semibold text-xs sm:text-sm">{tool.cost}</span>
+                    </div>
 
                     <button
                       onClick={() => onPurchaseTool(tool.id)}
